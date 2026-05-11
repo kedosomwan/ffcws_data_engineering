@@ -1,0 +1,507 @@
+---
+title: "FFCWS Data Cleaning"
+output:
+  word_document:
+    toc: true
+    toc_depth: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+# SETUP
+
+## load libraries
+```{r}
+library(tidyverse)
+library(gtsummary)
+library(stargazer)
+library(mice)
+library(sjPlot)
+library(labelled)
+library(psych)
+```
+
+## load data
+```{r}
+start_time <- Sys.time()
+
+# load dataset
+df_raw <- haven::read_dta("ffcws.dta")
+
+# calc time to load dataset
+end_time <- Sys.time()
+end_time - start_time
+
+# Convert all column names to lowercase
+names(df_raw) <- tolower(names(df_raw))
+```
+## subset variables
+```{r}
+# make new df_na named dataset
+df_na <- df_raw  %>% 
+  dplyr::select(
+    idnum, # id number for merging purposes
+    starts_with("t4f"), t4a5, t4a6, t4a7, # year 5 teacher survey, many teachers not asked
+    starts_with("t5f"), starts_with("t5c13"),  # year 9 teacher survey, more results here
+    ck6yagey,ck6ethrace,cm1edu,cm1bsex,cp6povco, p6j35, m1h2,m1b2, # demographic
+    k7h1_1, k7h1_2, k7h1_3, k7h1_4, k7h1_5, k7h2, # white, black, AAPI, NAAN, another race, Latinx
+    k6b2,k6b3,k6b29,k6e15, # discipline
+    k7b35a, k7b36, starts_with("k7b37"), # iss
+    k7b35b, k7b38, starts_with("k7b39"), # oss
+    ch5wj10ss, k7b13, #prior achievement
+    k7b7, # school type 
+    k6b2,k6b3,k6b29,k6e15, k7b35a, k7b35b,# discipline
+    starts_with("k7b15"), # science classes
+    starts_with("k7b14"), # math classes
+    k7b22, starts_with("k7b23"), # AP classes
+    k6b18, k6b19, k7b21, # honors classes 
+    k7b18a, k7b18b, k7b19, k7b20, # sat and act 
+    k7b45, k7b45, # currently attending or ever enrolled in 
+    k7b1, # highest education
+    starts_with("k6b4"), # teacher perceptions
+    starts_with("k6city"), # city weights for y15
+    starts_with("k7city"), # city weights for y22
+    starts_with("k6b4"), # teacher perceptions
+    starts_with("k6b5"), # student perceptions
+    k6b14, k6b15, # friends graduating from high school & college
+    k6b16, k6b17, #class mates graduating from high school college
+    k6d2c,k6d2n,k6d2s,k6d2x,k6d2ac, # depressive symptoms
+    k6b10, k6b9, # parent and student importance of college
+    k6b11, p6c27, # likelihood of graduating from college
+    starts_with("k6b1"), # school belonging
+    p6c18,p6c19,p6c20)  # special programming
+
+
+```
+
+## replace missing and view codebook
+```{r}
+# replace the skip with zero for honors and ap courss
+df_na$k7b21[df_na$k7b21 == -7] <- 0
+df_na$k7b22[df_na$k7b22 == -7] <- 0
+
+# get rid of participants not in y15 or y22 wave
+df_na <- df_na %>% dplyr::filter(k6d2c!=-9, k7h2 != -9) # get rid of students not in y15 & y22 wave,
+
+#df_na[df_na==-9] <- NA # not in wave
+df_na[df_na==-8] <- NA # out of range
+df_na[df_na==-7] <- NA # n/a
+df_na[df_na==-6] <- NA # skip
+df_na[df_na==-5] <- NA # not asked
+df_na[df_na==-4] <- NA # multiple answer
+df_na[df_na==-3] <- NA # missing
+df_na[df_na==-2] <- NA # don't know
+df_na[df_na==-1] <- NA # refuse
+
+
+
+df_na = df_na %>% drop_unused_value_labels()
+#see new values
+view_df(df_na, show.values = TRUE, show.prc = TRUE, show.na = TRUE, sort.by.name = TRUE)
+```
+
+
+## rename variables
+```{r}
+df_na <- df_na %>%
+  dplyr::rename(
+  # Affective Control - Depressive Symptoms
+    blues              = k6d2c,
+    sad                = k6d2n,
+    happy              = k6d2s,
+    life               = k6d2x,
+    dep                = k6d2ac,
+  # Controls - Prior Achievement
+    grades22           = k7b13,
+    wj10               = ch5wj10ss,
+  
+  ## Year 5 Teacher Survey
+  y5_skills_language = t4a5,
+  y5_skills_science = t4a6,
+  y5_skills_math = t4a7,
+  y5_limit_misbehavior = t4f1a,
+  y5_limit_kidscantlearn = t4f1b,
+  y5_limit_admin = t4f1c,
+  y5_enjoy = t4f1d,
+  y5_diference = t4f1e,
+  y5_chooseteaching = t4f1f,
+  y5_influence = t4f2,
+  y5_chooseskills = t4f3,
+  ## Year 9 Teacher Survey
+  
+  
+  ## math classes
+    math_basic = k7b14_1  ,
+    math_alg1 =k7b14_2  ,
+    math_geom =k7b14_3  ,
+    math_alg2 =k7b14_4  ,
+    math_trig =k7b14_5  ,
+    math_precal = k7b14_6  ,
+    math_calc = k7b14_7  ,
+    math_adv = k7b14_8  ,
+    math_other = k7b14_9  ,
+    math_none = k7b14_10 ,
+    math_ap = k7b23_1  ,
+  ## science classes
+    science_bio = k7b15_1,
+    science_chem = k7b15_2,
+    science_phys = k7b15_3,
+    science_other = k7b15_4,
+    science_none = k7b15_5,
+    science_ap = k7b23_2,
+  ## honors/advanced classes
+    honors_student = k6b18,
+    honors_count = k7b21,
+    ap_count = k7b22,
+    english_ap = k7b23_3,
+    social_ap = k7b23_4,
+  # college related
+    took_sat = k7b18a, 
+    took_act = k7b18b, 
+    score_sat = k7b19,
+    score_act = k7b20,
+    current_college = k7b45, 
+    ever_college = k7b45,
+    highest_edu = k7b1, 
+  # Kind of school
+    kind_school        =  k7b7,
+      ## expected graduation rates
+    grad_high_class = k6b16, 
+    grad_coll_class = k6b17,
+    grad_high_friend = k6b14,
+    grad_coll_friend = k6b15,  
+    grad_coll_self = k6b11,
+  # Demographic Characteristics
+    y15_age            = ck6yagey,
+    mom_edu            = cm1edu,
+    black             =  k7h1_2,
+    white            = k7h1_1,
+    aapi = k7h1_3,
+    indigenous = k7h1_4,
+    another_race = k7h1_5,
+    race_ethnicity     = ck6ethrace,
+    y15_pov            = cp6povco,
+  # Teacher Expectations
+    teacher_care           = k6b4a,
+    teacher_respect        = k6b4b,
+    teacher_expectation    = k6b4c,
+    teacher_interesting    = k6b4d,
+    teacher_comprehensible = k6b4e,
+    teacher_learn          = k6b4f,
+    teacher_busy          = k6b4g,
+  # Classmate expectations
+    kids_respect_teachers = k6b5a,
+    kids_work_hard = k6b5b,
+    kids_behave = k6b5c,
+  # Outcome - School Belonging
+    school_close       = k6b1a,
+    school_part        = k6b1b,
+    school_happy       = k6b1c,
+    school_safe        = k6b1d
+  )
+
+# change ungraded to NA in the grades answer
+df_na$grades22[df_na$grades22 == 9] <- NA
+```
+
+## recode binary variables and reverse college variables
+```{r}
+# for most (except biological sex) 1 is yes and 2 is no, so ifelse works
+df_na <- df_na %>% dplyr::mutate(
+  
+  # school programming
+  esl = ifelse(p6c18 == 1,1,0),
+  sped = ifelse(p6c20 == 1,1,0),
+  gt = ifelse(p6c19 == 1,1,0),
+  
+  # advanced coursework
+  honors = ifelse(honors_student == 1, 1, 0),
+  ap = ifelse(ap_count == 0, 0, 1),
+  ap_math = case_when(
+    math_ap == 1 ~ 1,
+    ap == 0 | math_ap == 0 ~ 0
+  ),
+  ap_science = case_when(
+    science_ap == 1 ~ 1,
+    ap == 0 | science_ap == 0 ~ 0
+  ),
+    ap_english = case_when(
+    english_ap == 1 ~ 1,
+    ap == 0 | english_ap == 0 ~ 0
+  ),
+  ap_social = case_when(
+    social_ap == 1 ~ 1,
+    ap == 0 | social_ap == 0 ~ 0
+  ),
+  
+  # college
+  sat = ifelse(took_sat == 1, 1, 0),
+  act = ifelse(took_act == 1, 1, 0),
+  ever_college_enroll = ifelse(ever_college == 1, 1, 0),
+  
+  # demographics
+  female = ifelse(cm1bsex == 2,1,0),
+  mom_US = ifelse(m1h2 == 1,1,0),
+  mom_married = ifelse(m1b2 == 1,1,0),
+  frpl = ifelse(p6j35 == 1, 1, 0),
+  latinx = ifelse(k7h2 == 1, 1, 0),
+  
+  # school settings
+  popo_stationed = ifelse(k6b2 == 1,1,0),
+  popo_see_stop = ifelse(k6e15 == 1,1,0),
+  security_stationed = ifelse(k6b3 == 1,1,0),
+  suspension_expulsion = ifelse(k6b29 == 1,1,0),
+  oss = ifelse(k7b35a == 1, 1, 0),
+  iss = ifelse(k7b35b == 1, 1, 0),
+  public_school = ifelse(kind_school == 1, 1, 0),
+  
+  # Parent & student Expectations
+  parent_college_importance   = (4-k6b10), # reverse scale 1 very important to 3
+  student_college_importance  = (4-k6b9), # reverse scale 1 very important to 3
+  parent_college_likelihood   = (5-p6c27), # reverse scale 1 very likely to 4
+  student_college_likelihood  = (5-grad_coll_self), # reverse scale 1 very likely to 4
+  )
+                    
+```
+
+## Create Scales
+```{r}
+df_na <- df_na %>%
+  mutate(
+    # ---- CES-D Depression scale ----
+    blues2 = case_when(
+      blues == 4 ~ 0,
+      blues == 3 ~ 1,
+      blues == 2 ~ 2,
+      blues == 1 ~ 3),
+    sad2 = case_when(
+      sad == 4 ~ 0,
+      sad == 3 ~ 1,
+      sad == 2 ~ 2,
+      sad == 1 ~ 3),
+    dep2 = case_when(
+      dep == 4 ~ 0,
+      dep == 3 ~ 1,
+      dep == 2 ~ 2,
+      dep == 1 ~ 3),
+    life2 = case_when(
+      life == 4 ~ 0,
+      life == 3 ~ 1,
+      life == 2 ~ 2,
+      life == 1 ~ 3),
+    happy2 = case_when(
+      happy == 4 ~ 3,
+      happy == 3 ~ 2,
+      happy == 2 ~ 2,
+      happy == 1 ~ 0),
+    ces_d = (blues2 + sad2 + dep2 + life2 +  happy2),
+    scale_depressive = as.numeric(scale(ces_d)),
+    mean_depressive = (blues2 + sad2 + dep2 + life2 +  happy2)/5,
+    
+    
+    # ---- Teacher perception scale ----
+    teacher_scale_raw =
+      (5 - as.numeric(teacher_care)) +
+      (5 - as.numeric(teacher_respect)) +
+      (5 - as.numeric(teacher_expectation)) +
+      (5 - as.numeric(teacher_interesting)) +
+      (5 - as.numeric(teacher_comprehensible)) +
+      (5 - as.numeric(teacher_learn)) +
+      (5 - as.numeric(teacher_busy)),
+    scale_teacher = as.numeric(scale(teacher_scale_raw)),
+    mean_teacher = teacher_scale_raw/7,
+
+    # ---- School belonging scale ----
+    school_belonging_scale_raw =
+      (5 - as.numeric(school_close)) +
+      (5 - as.numeric(school_part)) +
+      (5 - as.numeric(school_happy)) +
+      (5 - as.numeric(school_safe)),
+    scale_belonging = as.numeric(scale(school_belonging_scale_raw)),
+    mean_belonging = school_belonging_scale_raw/4
+  )
+```
+
+## check scale reliability with original data
+```{r}
+# install to get the greatest lower bound for reliability
+##install.packages("Rcsdp")
+
+# Check reliability
+## depressive symptoms
+dep_scale <- df_na %>% dplyr::select(blues2, sad2, happy2, life2, dep2)
+reliability(dep_scale)
+
+## teacher perceptions
+teacher_scale <- df_na %>% dplyr::select(teacher_care, teacher_respect, teacher_expectation, teacher_interesting, teacher_comprehensible)
+reliability(teacher_scale)
+
+# school belonging
+belonging_scale <- df_na %>% dplyr::select(school_close, school_part, school_happy, school_safe)
+reliability(belonging_scale)
+
+# kindergarten scales
+ece_teach <- df_na %>% dplyr::select(starts_with("t5f"))
+reliability(ece_teach)
+
+```
+
+## create new math and race variables
+```{r}
+library(dplyr)
+library(haven)
+
+df_na <- df_na %>%
+  mutate(
+    # ------------------
+    # Race (character)
+    # ------------------
+    race = case_when(
+      black == 1          ~ "Black",
+      another_race == 1   ~ "Another race",
+      white == 1          ~ "White",
+      indigenous == 1     ~ "Indigenous",
+      aapi == 1           ~ "AAPI",
+      TRUE                ~ NA_character_
+    ),
+
+    # ------------------
+    # High school math (6-level)
+    # ------------------
+    high_math = case_when(
+      is.na(math_none) ~ NA_real_,
+
+      math_calc == 1 | math_ap == 1 ~ 5,
+      math_precal == 1 | math_trig == 1 | math_adv == 1 ~ 4,
+      math_alg2 == 1 ~ 3,
+      math_geom == 1 ~ 2,
+      math_alg1 == 1 ~ 1,
+      math_basic == 1 | math_other == 1 | math_none == 1 ~ 0
+    ),
+
+    high_math = labelled(
+      high_math,
+      labels = c(
+        "none or basic" = 0,
+        "alg1" = 1,
+        "geometry" = 2,
+        "alg2" = 3,
+        "trig, precalc/alg3 or other advanced math" = 4,
+        "calc or AP math" = 5
+      )
+    ),
+
+    # ------------------
+    # Collapsed math level (4-level)
+    # ------------------
+    level_math = case_when(
+      is.na(math_none) ~ NA_real_,
+
+      math_calc == 1 | math_ap == 1 ~ 4,
+      math_precal == 1 | math_trig == 1 | math_adv == 1 ~ 3,
+      math_alg2 == 1 ~ 2,
+      math_geom == 1 | math_alg1 == 1 | math_basic == 1 |
+        math_other == 1 | math_none == 1 ~ 1
+    ),
+
+    level_math = labelled(
+      level_math,
+      labels = c(
+        "geometry or below" = 1,
+        "alg2" = 2,
+        "trig, precalc/alg3 or other advanced math" = 3,
+        "calc or AP math" = 4
+      )
+    ),
+
+    # ------------------
+    # High school science
+    # ------------------
+    high_science = case_when(
+      is.na(science_none) ~ NA_real_,
+
+      science_ap == 1   ~ 4,
+      science_phys == 1 ~ 3,
+      science_chem == 1 ~ 2,
+      science_bio == 1  ~ 1,
+      science_other == 1 | science_none == 1 ~ 0
+    ),
+
+    high_science = labelled(
+      high_science,
+      labels = c(
+        "none or other" = 0,
+        "biology" = 1,
+        "chemistry" = 2,
+        "physics" = 3,
+        "AP science" = 4
+      )
+    )
+  )
+
+# ------------------
+# AP indicators
+# ------------------
+df_na <- df_na %>%
+  mutate(
+    ap_stem = case_when(
+      is.na(math_none) ~ NA_real_,
+      science_ap == 1 | math_ap == 1 ~ 1,
+      TRUE ~ 0
+    ),
+
+    ap_math = case_when(
+      is.na(math_none) ~ NA_real_,
+      math_ap == 1 ~ 1,
+      TRUE ~ 0
+    ),
+
+    ap_science = case_when(
+      is.na(science_none) ~ NA_real_,
+      science_ap == 1 ~ 1,
+      TRUE ~ 0
+    )
+  )
+
+# ------------------
+# Advanced math dummy
+# ------------------
+df_na <- df_na %>%
+  mutate(adv_math = if_else(high_math >= 5, 1, 0))
+
+# ------------------
+# Effect coding (Black = reference)
+# race_ethnicity: 1 = White, 2 = Black, 3 = Latino, 4 = Another Race, 5 = Multiracial
+# ------------------
+df_na <- df_na %>%
+  mutate(
+    white_ec = case_when(
+      race_ethnicity == 1 ~  1,
+      race_ethnicity == 2 ~ -1,
+      TRUE                ~  0
+    ),
+    latinx_ec = case_when(
+      race_ethnicity == 3 ~  1,
+      race_ethnicity == 2 ~ -1,
+      TRUE                ~  0
+    ),
+    another_ec = case_when(
+      race_ethnicity == 4 ~  1,
+      race_ethnicity == 2 ~ -1,
+      TRUE                ~  0
+    ),
+    multi_ec = case_when(
+      race_ethnicity == 5 ~  1,
+      race_ethnicity == 2 ~ -1,
+      TRUE                ~  0
+    )
+  )
+  
+```
+
+# Save dataset
+```{r}
+haven::write_dta(df_na, "ffcws_subset.dta")
+```
+
