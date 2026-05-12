@@ -302,13 +302,13 @@ df_na <- df_na %>%
     
     # ---- Teacher perception scale ----
    ## reverse scale items
-    rev_teacher_care           = 5 - k6b4a,
-    rev_teacher_respect        = 5 - k6b4b,
-    rev_teacher_expectation    = 5 - k6b4c,
-    rev_teacher_interesting    = 5 - k6b4d,
-    rev_teacher_comprehensible = 5 - k6b4e,
-    rev_teacher_learn          = 5 - k6b4f,
-    rev_teacher_busy           = 5 - k6b4g,
+    rev_teacher_care           = 5 - teacher_care,
+    rev_teacher_respect        = 5 - teacher_respect,
+    rev_teacher_expectation    = 5 - teacher_expectation,
+    rev_teacher_interesting    = 5 - teacher_interesting,
+    rev_teacher_comprehensible = 5 - teacher_comprehensible,
+    rev_teacher_learn          = 5 - teacher_learn,
+    rev_teacher_busy           = 5 - teacher_busy,
    ## add all reverse scaled items
    teacher_scale_raw = 
      rev_teacher_care  +        
@@ -317,15 +317,15 @@ df_na <- df_na %>%
      rev_teacher_interesting   +
      rev_teacher_comprehensible +
      rev_teacher_learn +        
-     rev_teacher_busy +          
+     rev_teacher_busy,          
 
     scale_teacher = as.numeric(scale(teacher_scale_raw)),
     mean_teacher = teacher_scale_raw/7,
   # Outcome - School Belonging
-    rev_school_close       = 5 - k6b1a,
-    rev_school_part        = 5 - k6b1b,
-    rev_school_happy       = 5 - k6b1c,
-    rev_school_safe        = 5 - k6b1d,
+    rev_school_close       = 5 - school_close,
+    rev_school_part        = 5 - school_part,
+    rev_school_happy       = 5 - school_happy,
+    rev_school_safe        = 5 - school_safe,
  
 
     # ---- School belonging scale ----
@@ -487,29 +487,29 @@ df_na <- df_na %>%
   mutate(adv_math = if_else(high_math >= 5, 1, 0))
 
 # ------------------
-# Effect coding (Black = reference)
+# Effect coding (White = reference)
 # race_ethnicity: 1 = White, 2 = Black, 3 = Latino, 4 = Another Race, 5 = Multiracial
 # ------------------
 df_na <- df_na %>%
   mutate(
-    white_ec = case_when(
-      race_ethnicity == 1 ~  1,
-      race_ethnicity == 2 ~ -1,
+    black_ec = case_when(
+      race_ethnicity == 2 ~  1,
+      race_ethnicity == 1 ~ -1,
       TRUE                ~  0
     ),
     latinx_ec = case_when(
       race_ethnicity == 3 ~  1,
-      race_ethnicity == 2 ~ -1,
+      race_ethnicity == 1 ~ -1,
       TRUE                ~  0
     ),
     another_ec = case_when(
       race_ethnicity == 4 ~  1,
-      race_ethnicity == 2 ~ -1,
+      race_ethnicity == 1 ~ -1,
       TRUE                ~  0
     ),
     multi_ec = case_when(
       race_ethnicity == 5 ~  1,
-      race_ethnicity == 2 ~ -1,
+      race_ethnicity == 1 ~ -1,
       TRUE                ~  0
     )
   )
