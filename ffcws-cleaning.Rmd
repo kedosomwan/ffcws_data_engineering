@@ -395,7 +395,7 @@ df_na <- df_na %>%
       math_alg1 == 1 ~ 1,
       math_basic == 1 | math_other == 1 | math_none == 1 ~ 0
     ),
-
+  math_credits = math_other + math_adv + math_alg1 + math_geom + math_alg2 + math_precal + math_trig + math_calc,
     high_math = labelled(
       high_math,
       labels = c(
