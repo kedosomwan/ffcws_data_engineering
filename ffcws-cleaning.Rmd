@@ -314,7 +314,7 @@ df_na <- df_na %>%
     mean_teacher = teacher_scale_raw/7,
 
     # ---- School belonging scale ----
-    ol_belonging_scale_raw =
+    school_belonging_scale_raw =
     school_close +
     school_part +
     school_happy +
