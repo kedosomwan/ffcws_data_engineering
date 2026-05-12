@@ -299,41 +299,43 @@ df_na <- df_na %>%
     scale_depressive = as.numeric(scale(ces_d)),
     mean_depressive = (blues2 + sad2 + dep2 + life2 +  happy2)/5,
     
-    
+      # Teacher Expectations
+    teacher_care           = 5 - k6b4a,
+    teacher_respect        = 5 - k6b4b,
+    teacher_expectation    = 5 - k6b4c,
+    teacher_interesting    = 5 - k6b4d,
+    teacher_comprehensible = 5 - k6b4e,
+    teacher_learn          = 5 - k6b4f,
+    teacher_busy           = 5 - k6b4g,
+  # Classmate expectations
+    kids_respect_teachers = 5 - k6b5a,
+    kids_work_hard = 5 - k6b5b,
+    kids_behave = 5 - k6b5c,
+  # Outcome - School Belonging
+    school_close       = 5 - k6b1a,
+    school_part        = 5 - k6b1b,
+    school_happy       = 5 - k6b1c,
+    school_safe        = 5 - k6b1d,
     # ---- Teacher perception scale ----
-   ## reverse scale items
-    rev_teacher_care           = 5 - teacher_care,
-    rev_teacher_respect        = 5 - teacher_respect,
-    rev_teacher_expectation    = 5 - teacher_expectation,
-    rev_teacher_interesting    = 5 - teacher_interesting,
-    rev_teacher_comprehensible = 5 - teacher_comprehensible,
-    rev_teacher_learn          = 5 - teacher_learn,
-    rev_teacher_busy           = 5 - teacher_busy,
    ## add all reverse scaled items
    teacher_scale_raw = 
-     rev_teacher_care  +        
-     rev_teacher_respect   +    
-     rev_teacher_expectation +  
-     rev_teacher_interesting   +
-     rev_teacher_comprehensible +
-     rev_teacher_learn +        
-     rev_teacher_busy,          
+     teacher_care  +        
+     teacher_respect   +    
+     teacher_expectation +  
+     teacher_interesting   +
+     teacher_comprehensible +
+     teacher_learn +        
+     teacher_busy,          
 
     scale_teacher = as.numeric(scale(teacher_scale_raw)),
     mean_teacher = teacher_scale_raw/7,
-  # Outcome - School Belonging
-    rev_school_close       = 5 - school_close,
-    rev_school_part        = 5 - school_part,
-    rev_school_happy       = 5 - school_happy,
-    rev_school_safe        = 5 - school_safe,
- 
 
     # ---- School belonging scale ----
-    school_belonging_scale_raw =
-    rev_school_close +
-    rev_school_part +
-    rev_school_happy +
-    rev_school_safe,
+    ol_belonging_scale_raw =
+    school_close +
+    school_part +
+    school_happy +
+    school_safe,
     scale_belonging = as.numeric(scale(school_belonging_scale_raw)),
     mean_belonging = school_belonging_scale_raw/4
   )
