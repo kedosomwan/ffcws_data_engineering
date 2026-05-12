@@ -182,23 +182,6 @@ df_na <- df_na %>%
     another_race = k7h1_5,
     race_ethnicity     = ck6ethrace,
     y15_pov            = cp6povco,
-  # Teacher Expectations
-    teacher_care           = k6b4a,
-    teacher_respect        = k6b4b,
-    teacher_expectation    = k6b4c,
-    teacher_interesting    = k6b4d,
-    teacher_comprehensible = k6b4e,
-    teacher_learn          = k6b4f,
-    teacher_busy          = k6b4g,
-  # Classmate expectations
-    kids_respect_teachers = k6b5a,
-    kids_work_hard = k6b5b,
-    kids_behave = k6b5c,
-  # Outcome - School Belonging
-    school_close       = k6b1a,
-    school_part        = k6b1b,
-    school_happy       = k6b1c,
-    school_safe        = k6b1d
   )
 
 # change ungraded to NA in the grades answer
