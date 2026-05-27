@@ -360,6 +360,8 @@ df_na <- df_na %>%
 ```
 
 # Create Validated Scales
+
+## Y15 Depressive Symptoms
 ```{r}
 df_na <- df_na %>%
   mutate(
@@ -393,7 +395,7 @@ df_na <- df_na %>%
     scale_depressive = as.numeric(scale(ces_d)),
     mean_depressive = (blues2 + sad2 + dep2 + life2 +  happy2)/5)
 ```
-## Year 3
+## Scales for Xin Li Project
 ```{r}
 df_na <- df_na %>% 
   mutate(
@@ -446,8 +448,21 @@ df_na <- df_na %>%
     exterior_home_y03 = rowSums(select(., o3p6_a:o3p7_c), na.rm = TRUE),
     home_scale_y03 = rowSums(select(., ends_with("home_y03")), na.rm = TRUE),
     
-    # need to get a copy of the rating scale. will request.
-    ecers_y03 = rowMeans(select(., e3f1:e3f7, e3i1:e3i38, e3l1:e3l11), na.rm = TRUE))
+    # Early childhood  Envirnoment Rating Scale, used Sakai et al., 2003 to get the subscales and items. i don't see the parents and staff scales here.
+    personal_care_ecersr = rowSums(select(., e3i9:e3i14), na.rm = TRUE),
+    # parent_staff_ecersr = rowSums(select(., e3i38), na.rm = TRUE)
+    space_ecersr = rowSums(select(., e3il:e3i8), na.rm = TRUE),
+    language_ecersr = rowSums(select(., )),
+    activities_ecersr = rowSums(select(., e3il9:e3i28), na.rm = TRUE),
+    structure_ecersr = rowSums(select(., e3i34:e3i37), na.rm = TRUE),
+    interaction_ecersr = rowSums(select(., e3129:e3i33), na.rm = TRUE)
+    )
+    
+    
+    #  used Sakai et al., 2003 to get the subscales and items
+    ecersr <- df_na %>% select(., e3f1:e3f7, e3i1:e3i38, e3l1:e3l11) # running alfpha found e3f3:e3f7 reverse correlated and should be reversed.
+    # view variables to create subscales
+    view_df(ecersr, show.frq = TRUE)
 
 # note, need to do the home observation scale for year 5, but they direct to hte Leventhall et al. paper instead of explaining how to construcgt the scale. note that year 5 also has parental versions of the scale ase well
     
@@ -527,6 +542,6 @@ reliability(ece_teach)
 
 # Save dataset
 ```{r}
-haven::write_dta(df_na, "ffcws_subset.dta")
+haven::write_dta(df_na, "ffcws_subset_ece.dta")
 ```
 
