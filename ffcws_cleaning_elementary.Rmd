@@ -399,10 +399,17 @@ df_na <- df_na %>%
 ```{r}
 df_na <- df_na %>% 
   mutate(
+# ------------------
+# ASBI
+# ------------------
     asbi_scale_y03 = rowMeans(select(., p3m4, p3m8, p3m12, p3m15, p3m20, p3m24, p3m27, p3m34, p3m43), na.rm = TRUE),
     asbi_scale_y05 = rowMeans(select(., p4l3, p4l11, p4l15, p4l30, p4l32, p4l41, p4l48, p4l51, p4l55, p4l58, p4l60, p4l63, p4l66), na.rm = TRUE),
     asbi_scale_y09 = rowMeans(select(., p5q3dc:p5q3do), na.rm = TRUE),
     asbi_scale_y15 = rowMeans(select(., k6d1a:k6d1l), na.rm = TRUE),
+    
+# ------------------
+# Parental Depression
+# ------------------
     # using the constructed variable makes more sense here since the questions are different depending on the city. 
     mom_lib_dep_y01 = cm2md_case_lib,
     dad_lib_dep_y01 = cf2md_case_lib,
@@ -425,6 +432,9 @@ df_na <- df_na %>%
     pcg_lib_dep_y15 = cp5md_case_lib,
     pcg_lib_dep_y22 = cp7md_case_lib,
     pcg_lib_dep_y22 = cp7md_case_lib,
+# ------------------
+# Neighborhood Collectigve Efficacy
+# ------------------
     # Neihborhood efficacy - note these are not validated/standardized because edited from original measures; lower scores indicate higher levels of collective efficacy
     pcg_hood_eff_y03 = rowMeans(select(., p3k1a:p3k1e, p3k2a-p3k2e, p3k3a:p3k3h), na.rm = TRUE),
     mom_hood_eff_y05 = rowMeans(select(., m4i0m1:m4i0m5, m4i0n1:m4i0n5), na.rm = TRUE),
@@ -437,7 +447,9 @@ df_na <- df_na %>%
     p6i10 = 5 - p6i10, k6e2d = 5 - k6e2d,
     pcg_hood_eff_y15= rowMeans(select(., p6i2:p6i10), na.rm = TRUE),
     kid_hood_eff_y15= rowMeans(select(.,k6e2a:k6e2d, k6e3a:k6e3d, na.rm = TRUE)),
-    
+# ------------------
+# Home Observation for Measuremnt of the Environment (HOME) 
+# ------------------
     # Home observational scale,note says item scores are reversed to that higher score represents a better situation excerpt for condition of surround block (4 point) all others are 2 points (0,1s). reverse codeing them individually would be a pain so if I have the max sum I can add it in front to just reverse it all at once.
     
     responsivity_home_y03 = rowSums(select(., o3t1:o3t9), na.rm = TRUE),
@@ -448,15 +460,32 @@ df_na <- df_na %>%
     exterior_home_y03 = rowSums(select(., o3p6_a:o3p7_c), na.rm = TRUE),
     home_scale_y03 = rowSums(select(., ends_with("home_y03")), na.rm = TRUE),
     
-    # Early childhood  Envirnoment Rating Scale, used Sakai et al., 2003 to get the subscales and items. i don't see the parents and staff scales here.
+    warmth_home_y05 = rowSums(select(., o4t1:o4t8), na.rm = TRUE),
+    no_hostility_home_y05 = rowSums(select(., o4t9:o4t12), na.rm = TRUE),
+    verbal_home_y05 = rowSums(select(., o3t14, o3t17), na.rm = TRUE),
+    interior_home_y05 = rowSums(select(., o4r1:o4r12), na.rm = TRUE),
+    surrounding_home_y05 = rowSums(select(., o4p1:o4p4), na.rm = TRUE),
+    exterior_home_y05 = rowSums(select(., o4p6a:o4p7b), na.rm = TRUE),
+    home_scale_y05 = rowSums(select(., ends_with("home_y05")), na.rm = TRUE),
+    
+    # no subscales because used items from all three versions of home
+    home_scale_y09 = rowSums(select(., o5e1:o5e17, o5e18a:o5e18i), na.rm = TRUE),
+    home_scale_y15 = rowSums(select(., o6e1:o6e11, o6e12a, o6e12b, o6be13:o6e17, o6e18a:o6e18i), na.rm = TRUE),
+
+# ------------------
+# Early childhood  Envirnoment Rating Scale Revised (ECERS-R)
+# ------------------
+    # Early childhood  Envirnoment Rating Scale, used Sakai et al., 2003 to get the subscales and items. i don't see the parents and staff scales here. may be in in another section somewere
     personal_care_ecersr = rowSums(select(., e3i9:e3i14), na.rm = TRUE),
     # parent_staff_ecersr = rowSums(select(., e3i38), na.rm = TRUE)
     space_ecersr = rowSums(select(., e3il:e3i8), na.rm = TRUE),
     language_ecersr = rowSums(select(., )),
     activities_ecersr = rowSums(select(., e3il9:e3i28), na.rm = TRUE),
     structure_ecersr = rowSums(select(., e3i34:e3i37), na.rm = TRUE),
-    interaction_ecersr = rowSums(select(., e3129:e3i33), na.rm = TRUE)
-    )
+    interaction_ecersr = rowSums(select(., e3129:e3i33), na.rm = TRUE),
+    ecers_r = rowSums(select(., ends_with("ecersr")), na.rm = TRUE)
+)
+  
     
     
     #  used Sakai et al., 2003 to get the subscales and items
@@ -505,13 +534,9 @@ df_na <- df_na %>%
     mean_teacher = teacher_scale_raw/7,
 
     # ---- School belonging scale ----
-    school_belonging_scale_raw =
-    school_close +
-    school_part +
-    school_happy +
-    school_safe,
+    school_belonging_scale_raw = rowSums(select(., school_close, school_part, school_happy, school_safe), na.rm = TRUE),
     scale_belonging = as.numeric(scale(school_belonging_scale_raw)),
-    mean_belonging = school_belonging_scale_raw/4
+    school_belonging_scale_mean = rowMeans(select(., school_close, school_part, school_happy, school_safe), na.rm = TRUE)
   )
 ```
 
