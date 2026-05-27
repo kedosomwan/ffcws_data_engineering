@@ -447,7 +447,7 @@ df_na <- df_na %>%
     home_scale_y03 = rowSums(select(., ends_with("home_y03")), na.rm = TRUE),
     
     # need to get a copy of the rating scale. will request.
-    ecers = rowMeans(select(., e3f1:e3f7, e3i1:e3i38, e3l1:e3l11), na.rm = TRUE))
+    ecers_y03 = rowMeans(select(., e3f1:e3f7, e3i1:e3i38, e3l1:e3l11), na.rm = TRUE))
 
 # note, need to do the home observation scale for year 5, but they direct to hte Leventhall et al. paper instead of explaining how to construcgt the scale. note that year 5 also has parental versions of the scale ase well
     
