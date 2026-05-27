@@ -397,45 +397,57 @@ df_na <- df_na %>%
 ```{r}
 df_na <- df_na %>% 
   mutate(
-    asbi_scale_y3 = rowMeans(select(., p3m4, p3m8, p3m12, p3m15, p3m20, p3m24, p3m27, p3m34, p3m43), na.rm = TRUE),
-    asbi_scale_y5 = rowMeans(select(., p4l3, p4l11, p4l15, p4l30, p4l32, p4l41, p4l48, p4l51, p4l55, p4l58, p4l60, p4l63, p4l66), na.rm = TRUE),
-    asbi_scale_y9 = rowMeans(select(., p5q3dc:p5q3do), na.rm = TRUE),
+    asbi_scale_y03 = rowMeans(select(., p3m4, p3m8, p3m12, p3m15, p3m20, p3m24, p3m27, p3m34, p3m43), na.rm = TRUE),
+    asbi_scale_y05 = rowMeans(select(., p4l3, p4l11, p4l15, p4l30, p4l32, p4l41, p4l48, p4l51, p4l55, p4l58, p4l60, p4l63, p4l66), na.rm = TRUE),
+    asbi_scale_y09 = rowMeans(select(., p5q3dc:p5q3do), na.rm = TRUE),
     asbi_scale_y15 = rowMeans(select(., k6d1a:k6d1l), na.rm = TRUE),
     # using the constructed variable makes more sense here since the questions are different depending on the city. 
-    mom_lib_dep_y1 = cm2md_case_lib,
-    dad_lib_dep_y1 = cf2md_case_lib,
-    mom_con_dep_y1 = cm2md_case_con,
-    dad_con_dep_y1 = cf2md_case_con,
-    mom_lib_dep_y3 = cm3md_case_lib,
-    dad_lib_dep_y3 = cf3md_case_lib,
-    mom_con_dep_y3 = cm3md_case_con,
-    dad_con_dep_y3 = cf3md_case_con,
-    mom_lib_dep_y5 = cm4md_case_lib,
-    dad_lib_dep_y5 = cf4md_case_lib,
-    mom_con_dep_y5 = cm4md_case_con,
-    dad_con_dep_y5 = cf4md_case_con,
-    mom_lib_dep_y9 = cm5md_case_lib,
-    dad_lib_dep_y9 = cf5md_case_lib,
-    mom_con_dep_y9 = cm5md_case_con,
-    dad_con_dep_y9 = cf5md_case_con,
+    mom_lib_dep_y01 = cm2md_case_lib,
+    dad_lib_dep_y01 = cf2md_case_lib,
+    mom_con_dep_y01 = cm2md_case_con,
+    dad_con_dep_y01 = cf2md_case_con,
+    mom_lib_dep_y03 = cm3md_case_lib,
+    dad_lib_dep_y03 = cf3md_case_lib,
+    mom_con_dep_y03 = cm3md_case_con,
+    dad_con_dep_y03 = cf3md_case_con,
+    mom_lib_dep_y05 = cm4md_case_lib,
+    dad_lib_dep_y05 = cf4md_case_lib,
+    mom_con_dep_y05 = cm4md_case_con,
+    dad_con_dep_y05 = cf4md_case_con,
+    mom_lib_dep_y09 = cm5md_case_lib,
+    dad_lib_dep_y09 = cf5md_case_lib,
+    mom_con_dep_y09 = cm5md_case_con,
+    dad_con_dep_y09 = cf5md_case_con,
     # this is when they switch to parental caregiver instead of dad and mom
     pcg_lib_dep_y15 = cp5md_case_lib,
     pcg_lib_dep_y15 = cp5md_case_lib,
     pcg_lib_dep_y22 = cp7md_case_lib,
     pcg_lib_dep_y22 = cp7md_case_lib,
-    # Neihborhood efficacy - note these are not validated/standardized because edited from original measures
-    pcg_hood_eff_y3 = rowMeans(select(., p3k1a:p3k1e, p3k2a-p3k2e, p3k3a:p3k3h), na.rm = TRUE),
-    mom_hood_eff_y5 = rowMeans(select(., m4i0m1:m4i0m5, m4i0n1:m4i0n5), na.rm = TRUE),
-    dad_hood_eff_y5 = rowMeans(select(., d4i0m1:d4i0m5, d4i0n1:d4i0n5), na.rm = TRUE),
-    pcg_hood_eff_y9 = rowMeans(select(., p5m2a:p5m2d, p5m3a:p5m3d), na.rm = TRUE),
+    # Neihborhood efficacy - note these are not validated/standardized because edited from original measures; lower scores indicate higher levels of collective efficacy
+    pcg_hood_eff_y03 = rowMeans(select(., p3k1a:p3k1e, p3k2a-p3k2e, p3k3a:p3k3h), na.rm = TRUE),
+    mom_hood_eff_y05 = rowMeans(select(., m4i0m1:m4i0m5, m4i0n1:m4i0n5), na.rm = TRUE),
+    dad_hood_eff_y05 = rowMeans(select(., d4i0m1:d4i0m5, d4i0n1:d4i0n5), na.rm = TRUE),
+    # year nine reverse code p4m3c and p5m3d
+    p5m3c = 5 - p4m3c, p5m3d = 5 - p5m3d,
+    pcg_hood_eff_y09 = rowMeans(select(., p5m2a:p5m2d, p5m3a:p5m3d), na.rm = TRUE),
+    # year 15 reverse code p6i9/k6e2c and p6i10/k6e2d 
+    p6i9 = 5 - p6i9, k6e2c = 5 - k6e2c,
+    p6i10 = 5 - p6i10, k6e2d = 5 - k6e2d,
     pcg_hood_eff_y15= rowMeans(select(., p6i2:p6i10), na.rm = TRUE),
-    kid_hood_eff_y15= rowMeans(select(.,k6e2a:k6e2d, k6e3a:k6e3d, na.rm = TRUE))
+    kid_hood_eff_y15= rowMeans(select(.,k6e2a:k6e2d, k6e3a:k6e3d, na.rm = TRUE)),
     
+    # Home observational scale,note says item scores are reversed to that higher score represents a better situation excerpt for condition of surround block (4 point) all others are 2 points (0,1s). reverse codeing them individually would be a pain so if I have the max sum I can add it in front to just reverse it all at once.
+    
+    responsivity_home_y03 = rowSums(select(., o3t1:o3t9), na.rm = TRUE),
+    acceptance_home_y03 = rowSums(select(., o3t10:o3t14), na.rm = TRUE),
+    involve_home_y03 = rowSums(select(., o3t15, o3t14), na.rm = TRUE),
+    interior_home_y03 = rowSums(select(., o3r1:o3r13), na.rm = TRUE),
+    surrounding_home_y03 = rowSums(select(., o3p1:o3p5), na.rm = TRUE),
+    exterior_home_y03 = rowSums(select(., o3p6_a:o3p7_c), na.rm = TRUE),
+    home_scale_y03 = rowSums(select(., ends_with("home_y03")), na.rm = TRUE))
 
+# note, need to do the home observation scale for year 5, but they direct to hte Leventhall et al. paper instead of explaining how to construcgt the scale. note that year 5 also has parental versions of the scale ase well
     
-    
-  )
-
 ```
 
 
