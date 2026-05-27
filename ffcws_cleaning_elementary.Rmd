@@ -398,7 +398,42 @@ df_na <- df_na %>%
 df_na <- df_na %>% 
   mutate(
     asbi_scale_y3 = rowMeans(select(., p3m4, p3m8, p3m12, p3m15, p3m20, p3m24, p3m27, p3m34, p3m43), na.rm = TRUE),
-    asbi_scale_y5 = rowMeans(select(., p4l3, p4l11, p4l15, p4l30, p4l32, p4l41, p4l48, p4l51, p4l55, p4l58, p4l60, p4l63, p4l66), na.rm = TRUE)
+    asbi_scale_y5 = rowMeans(select(., p4l3, p4l11, p4l15, p4l30, p4l32, p4l41, p4l48, p4l51, p4l55, p4l58, p4l60, p4l63, p4l66), na.rm = TRUE),
+    asbi_scale_y9 = rowMeans(select(., p5q3dc:p5q3do), na.rm = TRUE),
+    asbi_scale_y15 = rowMeans(select(., k6d1a:k6d1l), na.rm = TRUE),
+    # using the constructed variable makes more sense here since the questions are different depending on the city. 
+    mom_lib_dep_y1 = cm2md_case_lib,
+    dad_lib_dep_y1 = cf2md_case_lib,
+    mom_con_dep_y1 = cm2md_case_con,
+    dad_con_dep_y1 = cf2md_case_con,
+    mom_lib_dep_y3 = cm3md_case_lib,
+    dad_lib_dep_y3 = cf3md_case_lib,
+    mom_con_dep_y3 = cm3md_case_con,
+    dad_con_dep_y3 = cf3md_case_con,
+    mom_lib_dep_y5 = cm4md_case_lib,
+    dad_lib_dep_y5 = cf4md_case_lib,
+    mom_con_dep_y5 = cm4md_case_con,
+    dad_con_dep_y5 = cf4md_case_con,
+    mom_lib_dep_y9 = cm5md_case_lib,
+    dad_lib_dep_y9 = cf5md_case_lib,
+    mom_con_dep_y9 = cm5md_case_con,
+    dad_con_dep_y9 = cf5md_case_con,
+    # this is when they switch to parental caregiver instead of dad and mom
+    pcg_lib_dep_y15 = cp5md_case_lib,
+    pcg_lib_dep_y15 = cp5md_case_lib,
+    pcg_lib_dep_y22 = cp7md_case_lib,
+    pcg_lib_dep_y22 = cp7md_case_lib,
+    # Neihborhood efficacy - note these are not validated/standardized because edited from original measures
+    pcg_hood_eff_y3 = rowMeans(select(., p3k1a:p3k1e, p3k2a-p3k2e, p3k3a:p3k3h), na.rm = TRUE),
+    mom_hood_eff_y5 = rowMeans(select(., m4i0m1:m4i0m5, m4i0n1:m4i0n5), na.rm = TRUE),
+    dad_hood_eff_y5 = rowMeans(select(., d4i0m1:d4i0m5, d4i0n1:d4i0n5), na.rm = TRUE),
+    pcg_hood_eff_y9 = rowMeans(select(., p5m2a:p5m2d, p5m3a:p5m3d), na.rm = TRUE),
+    pcg_hood_eff_y15= rowMeans(select(., p6i2:p6i10), na.rm = TRUE),
+    kid_hood_eff_y15= rowMeans(select(.,k6e2a:k6e2d, k6e3a:k6e3d, na.rm = TRUE))
+    
+
+    
+    
   )
 
 ```
