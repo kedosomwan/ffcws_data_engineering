@@ -42,7 +42,7 @@ names(df_raw) <- tolower(names(df_raw))
 df_na <- df_raw
 
 start_time <- Sys.time()
-#df_na[df_na==-9] <- NA # not in wave
+df_na[df_na==-9] <- NA # not in wave
 df_na[df_na==-8] <- NA # out of range
 df_na[df_na==-7] <- NA # n/a
 df_na[df_na==-6] <- NA # skip
@@ -57,7 +57,7 @@ end_time - start_time
 
 df_na = df_na %>% drop_unused_value_labels()
 #see new values
-view_df(df_na, show.values = TRUE, show.prc = TRUE, show.na = TRUE, sort.by.name = TRUE)
+# view_df(df_na, show.values = TRUE, show.prc = TRUE, show.na = TRUE, sort.by.name = TRUE)
 ```
 
 
@@ -393,8 +393,18 @@ df_na <- df_na %>%
     scale_depressive = as.numeric(scale(ces_d)),
     mean_depressive = (blues2 + sad2 + dep2 + life2 +  happy2)/5)
 ```
+## Year 3
+```{r}
+df_na <- df_na %>% 
+  mutate(
+    asbi_scale_y3 = rowMeans(select(., p3m4, p3m8, p3m12, p3m15, p3m20, p3m24, p3m27, p3m34, p3m43), na.rm = TRUE),
+    asbi_scale_y5 = rowMeans(select(., p4l3, p4l11, p4l15, p4l30, p4l32, p4l41, p4l48, p4l51, p4l55, p4l58, p4l60, p4l63, p4l66), na.rm = TRUE)
+  )
 
-# Y15 Created Scales
+```
+
+
+# Create Y15 Scales
 ```{r}
 df_na <- df_na %>%
   mutate(    
