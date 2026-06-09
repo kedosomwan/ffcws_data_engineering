@@ -62,10 +62,10 @@ df_na = df_na %>% drop_unused_value_labels()
 
 # Recode & Rename
 
-## rename variables
+## Make variable copies with new names
 ```{r}
 df <- df_na %>%
-  dplyr::rename(
+  dplyr::mutate(
   # Affective Control - Depressive Symptoms
     blues              = k6d2c,
     sad                = k6d2n,
@@ -88,6 +88,7 @@ df <- df_na %>%
   y5_chooseteaching = t4f1f,
   y5_influence = t4f2,
   y5_chooseskills = t4f3,
+  
   ## Year 9 Teacher Survey
   
   
@@ -103,6 +104,7 @@ df <- df_na %>%
     math_other = k7b14_9  ,
     math_none = k7b14_10 ,
     math_ap = k7b23_1  ,
+  
   ## science classes
     science_bio = k7b15_1,
     science_chem = k7b15_2,
@@ -110,12 +112,14 @@ df <- df_na %>%
     science_other = k7b15_4,
     science_none = k7b15_5,
     science_ap = k7b23_2,
+  
   ## honors/advanced classes
     honors_student = k6b18,
     honors_count = k7b21,
     ap_count = k7b22,
     english_ap = k7b23_3,
     social_ap = k7b23_4,
+  
   # college related
     took_sat = k7b18a, 
     took_act = k7b18b, 
@@ -126,12 +130,14 @@ df <- df_na %>%
     highest_edu = k7b1, 
   # Kind of school
     kind_school        =  k7b7,
+  
       ## expected graduation rates
     grad_high_class = k6b16, 
     grad_coll_class = k6b17,
     grad_high_friend = k6b14,
     grad_coll_friend = k6b15,  
     grad_coll_self = k6b11,
+  
   # Demographic Characteristics
     y15_age            = ck6yagey,
     mom_edu            = cm1edu,
@@ -142,6 +148,36 @@ df <- df_na %>%
     another_race = k7h1_5,
     race_ethnicity     = ck6ethrace,
     y15_pov            = cp6povco,
+    birth_gender = cm1bsex,
+    # birth_weight =
+    mom_age_y00 = cm1age,
+    dad_age_y00 = cf1age,
+  # using mom data
+    poverty_category_y00 = cm1povca,
+    poverty_ratio_y00 = cm1inpov,
+    poverty_category_y01 = cm2povca,
+    poverty_ratio_y01 = cm2povco,
+    poverty_category_y03 = cm3povca,
+    poverty_ratio_y03 = cm3povco,
+    poverty_category_y05 = cm4povca,
+    poverty_ratio_y05 = cm4povco,
+    poverty_category_y09 = cm5povca,
+    poverty_ratio_y09 = cm5povco,
+  
+  # Standardized Test scores
+  
+    pcg_ppvt_y03   = ch3ppvtstd_m,
+    pcg_tvip_y03   = ch3tvipstd_m,
+    child_ppvt_y03 = ch3ppvtstd,
+    child_tvip_y03 = ch3tvipstd,
+  
+    pcg_ppvt_y05   = ch4ppvtstd,
+    pcg_tvip_y05   = ch4tvipstd_m,
+    child_ppvt_y05 = ch4ppvtstd,
+    child_tvip_y05 = ch4tvipstd_m,
+  
+    child_ppvt_y09 = ch5ppvtss,
+  
   )
 
 # change ungraded to NA in the grades answer
@@ -184,11 +220,12 @@ df <- df %>% dplyr::mutate(
   ever_college_enroll = ifelse(ever_college == 1, 1, 0),
   
   # demographics
-  female = ifelse(cm1bsex == 2,1,0),
+  female = ifelse(birth_gender == 2,1,0),
   mom_US = ifelse(m1h2 == 1,1,0),
   mom_married = ifelse(m1b2 == 1,1,0),
   frpl = ifelse(p6j35 == 1, 1, 0),
   latinx = ifelse(k7h2 == 1, 1, 0),
+  
   
   # school settings
   popo_stationed = ifelse(k6b2 == 1,1,0),
@@ -396,6 +433,7 @@ df <- df %>%
     scale_depressive = as.numeric(scale(ces_d)),
     mean_depressive = (blues2 + sad2 + dep2 + life2 +  happy2)/5)
 ```
+
 ## Scales for Xin Li Project
 ```{r}
 df <- df %>% 
@@ -430,105 +468,111 @@ df <- df %>%
     mom_con_dep_y09 = cm5md_case_con,
     dad_con_dep_y09 = cf5md_case_con,
     # this is when they switch to parental caregiver instead of dad and mom
-    pcg_lib_dep_y15 = cp5md_case_lib,
-    pcg_lib_dep_y15 = cp5md_case_lib,
+    pcg_lib_dep_y15 = cp6md_case_lib,
+    pcg_lib_dep_y15 = cp6md_case_lib,
     pcg_lib_dep_y22 = cp7md_case_lib,
     pcg_lib_dep_y22 = cp7md_case_lib,
 # ------------------
 # Neighborhood Collectigve Efficacy
 # ------------------
     # Neihborhood efficacy - note these are not validated/standardized because edited from original measures; lower scores indicate higher levels of collective efficacy
-    pcg_hood_eff_y03 = rowMeans(select(., p3k1a:p3k1e, p3k2a-p3k2e, p3k3a:p3k3h), na.rm = TRUE),
+    pcg_hood_eff_y03 = rowMeans(select(., p3k1a:p3k1e, p3k2a:p3k2e, p3k3a:p3k3h), na.rm = TRUE),
     mom_hood_eff_y05 = rowMeans(select(., m4i0m1:m4i0m5, m4i0n1:m4i0n5), na.rm = TRUE),
-    dad_hood_eff_y05 = rowMeans(select(., d4i0m1:d4i0m5, d4i0n1:d4i0n5), na.rm = TRUE),
+    #dad_hood_eff_y05 = rowMeans(select(., d4i0m1:d4i0m5, d4i0n1:d4i0n5), na.rm = TRUE),
     # year nine reverse code p4m3c and p5m3d
-    p5m3c = 5 - p4m3c, p5m3d = 5 - p5m3d,
+    p5m3c = 5 - p5m3c, p5m3d = 5 - p5m3d,
     pcg_hood_eff_y09 = rowMeans(select(., p5m2a:p5m2d, p5m3a:p5m3d), na.rm = TRUE),
     # year 15 reverse code p6i9/k6e2c and p6i10/k6e2d 
     p6i9 = 5 - p6i9, k6e2c = 5 - k6e2c,
     p6i10 = 5 - p6i10, k6e2d = 5 - k6e2d,
     pcg_hood_eff_y15= rowMeans(select(., p6i2:p6i10), na.rm = TRUE),
-    kid_hood_eff_y15= rowMeans(select(.,k6e2a:k6e2d, k6e3a:k6e3d, na.rm = TRUE)),
+    #kid_hood_eff_y15= rowMeans(select(.,k6e2a:k6e2d, k6e3a:k6e3d, na.rm = TRUE)),
 # ------------------
 # Home Observation for Measurement of the Environment (HOME) 
 # ------------------
-    # Home observational scale,note says item scores are reversed to that higher score represents a better situation excerpt for condition of surround block (4 point) all others are 2 points (0,1s). reverse codeing them individually would be a pain so if I have the max sum I can add it in front to just reverse it all at once.
+    # Home observational scale,note says item scores are reversed to that higher score represents a better situation excerpt for condition of surround block (4 point) all others are 2 points (0,1s). reverse coding them individually would be a pain so if I have the max sum I can add it in front to just reverse it all at once.
     
-    responsivity_home_y03 = rowSums(select(., o3t1:o3t9), na.rm = TRUE),
-    acceptance_home_y03 = rowSums(select(., o3t10:o3t14), na.rm = TRUE),
-    involve_home_y03 = rowSums(select(., o3t15, o3t14), na.rm = TRUE),
-    interior_home_y03 = rowSums(select(., o3r1:o3r13), na.rm = TRUE),
-    surrounding_home_y03 = rowSums(select(., o3p1:o3p5), na.rm = TRUE),
-    exterior_home_y03 = rowSums(select(., o3p6_a:o3p7_c), na.rm = TRUE),
-    home_scale_y03 = rowSums(select(., ends_with("home_y03")), na.rm = TRUE),
+    responsivity_home_y03 = rowMeans(select(., o3t1:o3t9), na.rm = TRUE),
+    acceptance_home_y03 = rowMeans(select(., o3t10:o3t14), na.rm = TRUE),
+    involve_home_y03 = rowMeans(select(., o3t15, o3t14), na.rm = TRUE),
+    interior_home_y03 = rowMeans(select(., o3r1:o3r13), na.rm = TRUE),
+    surrounding_home_y03 = rowMeans(select(., o3p1:o3p5), na.rm = TRUE),
+    exterior_home_y03 = rowMeans(select(., o3p6_a:o3p7_c), na.rm = TRUE),
+    home_scale_y03 = rowMeans(select(., o3t1:o3p7_c), na.rm = TRUE),
     
-    warmth_home_y05 = rowSums(select(., o4t1:o4t8), na.rm = TRUE),
-    no_hostility_home_y05 = rowSums(select(., o4t9:o4t12), na.rm = TRUE),
-    verbal_home_y05 = rowSums(select(., o3t14, o3t17), na.rm = TRUE),
-    interior_home_y05 = rowSums(select(., o4r1:o4r12), na.rm = TRUE),
-    surrounding_home_y05 = rowSums(select(., o4p1:o4p4), na.rm = TRUE),
-    exterior_home_y05 = rowSums(select(., o4p6a:o4p7b), na.rm = TRUE),
-    home_scale_y05 = rowSums(select(., ends_with("home_y05")), na.rm = TRUE),
+    warmth_home_y05 = rowMeans(select(., o4t1:o4t8), na.rm = TRUE),
+    no_hostility_home_y05 = rowMeans(select(., o4t9:o4t12), na.rm = TRUE),
+    verbal_home_y05 = rowMeans(select(., o3t14, o3t16), na.rm = TRUE),
+    interior_home_y05 = rowMeans(select(., o4r1:o4r12), na.rm = TRUE),
+    surrounding_home_y05 = rowMeans(select(., o4p1:o4p4), na.rm = TRUE),
+    exterior_home_y05 = rowMeans(select(., o4p6a:o4p7b), na.rm = TRUE),
+    home_scale_y05 = rowMeans(select(., o4t1:o4p7b), na.rm = TRUE),
     
     # no subscales because used items from all three versions of home
-    home_scale_y09 = rowSums(select(., o5e1:o5e17, o5e18a:o5e18i), na.rm = TRUE),
-    home_scale_y15 = rowSums(select(., o6e1:o6e11, o6e12a, o6e12b, o6be13:o6e17, o6e18a:o6e18i), na.rm = TRUE),
+    home_scale_y09 = rowMeans(select(., o5e1:o5e17, o5e18a:o5e18i), na.rm = TRUE),
+    # home_scale_y15 = rowMeans(select(., o6e1:o6e11, o6e12a, o6e12b, o6be13:o6e17, o6e18a:o6e18i), na.rm = TRUE),
 
 # ------------------
-# Early childhood  Envirnoment Rating Scale Revised (ECERS-R)
+# Early childhood  Environment Rating Scale Revised (ECERS-R)
 # ------------------
     # Early childhood  Environment Rating Scale, used Sakai et al., 2003 to get the subscales and items. i don't see the parents and staff scales here. may be in in another section somewhere. also, the e3f variables don't appear to match the sales? something about time spent
-    personal_care_ecersr = rowSums(select(., e3i9:e3i14), na.rm = TRUE),
-    # parent_staff_ecersr = rowSums(select(., e3i38), na.rm = TRUE)
-    space_ecersr = rowSums(select(., e3il:e3i8), na.rm = TRUE),
-    language_ecersr = rowSums(select(., )),
-    activities_ecersr = rowSums(select(., e3il9:e3i28), na.rm = TRUE),
-    structure_ecersr = rowSums(select(., e3i34:e3i37), na.rm = TRUE),
-    interaction_ecersr = rowSums(select(., e3129:e3i33), na.rm = TRUE),
-    ecers_r = rowSums(select(., ends_with("ecersr")), na.rm = TRUE),
+    personal_care_ecersr = rowMeans(select(., e3i9:e3i14), na.rm = TRUE),
+    # parent_staff_ecersr = rowMeans(select(., e3i38), na.rm = TRUE)
+    space_ecersr = rowMeans(select(., e3i1:e3i8), na.rm = TRUE),
+    #language_ecersr = rowMeans(select(., )),
+    activities_ecersr = rowMeans(select(., e3i9:e3i28), na.rm = TRUE),
+    structure_ecersr = rowMeans(select(., e3i34:e3i37), na.rm = TRUE),
+    interaction_ecersr = rowMeans(select(., e3i29:e3i33), na.rm = TRUE),
+    ecers_r = rowMeans(select(., ends_with("ecersr")), na.rm = TRUE),
 
 # ------------------
 # Material Hardship
 # ------------------
   # no established scoring
-  material_hardship_y01 = rowSums(select(., m2h19a:m2h191, f2h17a:f2h17l), 
+  material_hardship_y01 = rowMeans(select(., m2h19a:m2h19i, f2h17a:f2h17l), 
                                          na.rm = TRUE),
 # i & j only asked in some cities
-  material_hardship_y03 = rowSums(select(., m3i23a:m3i23j, f3i23a:f3i23j), 
-                                  na.rem = TRUE),
-  material_hardship_y05 = rowSums(select(., m4i23a:m4i23m, f4i23a:f4i23m), 
+  material_hardship_y03 = rowMeans(select(., m3i23a:m3i23j, f3i23a:f3i23j), 
+                                  na.rm = TRUE),
+  material_hardship_y05 = rowMeans(select(., m4i23a:m4i23m, f4i23a:f4i23m), 
                                   na.rm = TRUE),
 
 # adds non-parental caregiver questions
-  material_hardship_y09 = rowSums(select(., m5f23a:m5f23j, f5f23a:f5f23j, n5g1a:n5g1j), 
+  material_hardship_y09 = rowMeans(select(., m5f23a:m5f23j, f5f23a:f5f23j, n5g1a:n5g1j), 
                                   na.rm = TRUE),
 # has past year or past six years not in the past year. here we switch to PCG
-  material_hardship_y15 = rowSums(select(., p6j37:p6j47, p6j48:p6j58), 
+  material_hardship_y15 = rowMeans(select(., p6j37:p6j47, p6j48:p6j58), 
                                   na.rm = TRUE),
 # ------------------
 # Aggravation in Parenting
 # ------------------
 
 # did not implement full scale.
-  mom_aggravation_y01 = rowMeans(select(., m2b20a:m2b20d, m2b44a:m2b44d, m2b20ax, m2b20bx, mx2b20cx),
+  mom_aggravation_y01 = rowMeans(select(., m2b20a:m2b20d, m2b44a:m2b44d, m2b20ax, m2b20bx, m2b20cx),
                             na.rm = TRUE),
   dad_aggravation_y01 = rowMeans(select(., f2b18a:f2b18d, f2b38a:f2b38d, f2b20ax, f2b20bx, f2b20cx),
                             na.rm = TRUE),
-  mom_aggravation_y03 = rowMeans(select(., m3b6a- m3b6d, m3b34a-m3b34d),
+  #pcg_aggravation_y01 = rowMeans(select(., mom_aggravation_y01, dad_aggravation_y01),na.rm = TRUE),
+
+  mom_aggravation_y03 = rowMeans(select(., m3b6a:m3b6d, m3b34a:m3b34d),
                                  na.rm = TRUE),
   dad_aggravation_y03 = rowMeans(select(.,  f3b6a:f3b6d, f3b34a:f3b34d),
                                  na.rm = TRUE),
+  #pcg_aggravation_y03 = rowMeans(select(., mom_aggravation_y03, dad_aggravation_y03), na.rm = TRUE),
+
   mom_aggravation_y05 = rowMeans(select(., m4b6a:m4b6d, m4b31a:m4b31d),
                                  na.rm = TRUE),
   dad_aggravation_y05 = rowMeans(select(., f4b6a:f4b6d, f4b31a:f4b31d),
                                 na.rm = TRUE),
+  #pcg_aggravation_y05 = rowMeans(select(., mom_aggravation_y05, dad_aggravation_y05), na.rm = TRUE),
+
   mom_aggravation_y09 = rowMeans(select(., m5k2a:m5k2d),
                                  na.rm = TRUE),
   dad_aggravation_y09 = rowMeans(select(.,  f5k2a:f5k2d),
                                  na.rm = TRUE),
-  pcg_aggravation_y09 = rowMeans(select(., p5k1a:p5k1d),
-                                 na.rm = TRUE),
-  pcg_aggrvation_y15 = rowMeans(select(., p6d32:p6d35),
+  #pcg_aggravation_y09 = rowMeans(select(., p5k1a:p5k1d), na.rm = TRUE),
+
+  pcg_aggravation_y15 = rowMeans(select(., p6d32:p6d35),
                                 na.rm = TRUE)
 )
   
@@ -584,9 +628,10 @@ df <- df %>%
     mean_teacher = teacher_scale_raw/7,
 
     # ---- School belonging scale ----
-    school_belonging_scale_raw = rowSums(select(., school_close, school_part, school_happy, school_safe), na.rm = TRUE),
+  school_belonging_scale_mean = rowMeans(select(., school_close, school_part, school_happy, school_safe), na.rm = TRUE),
+    #school_belonging_scale_raw = rowSums(select(., school_close, school_part, school_happy, school_safe), na.rm = TRUE),
     scale_belonging = as.numeric(scale(school_belonging_scale_raw)),
-    school_belonging_scale_mean = rowMeans(select(., school_close, school_part, school_happy, school_safe), na.rm = TRUE)
+    
   )
 ```
 
@@ -617,6 +662,11 @@ reliability(ece_teach)
 
 # Save dataset
 ```{r}
-haven::write_dta(df_na, "ffcws_subset_ece.dta")
+
+df_subset <- df %>% select(blues:pcg_aggravation_y15) 
+haven::write_dta(df_subset, "ffcws_subset_ece.dta")
+
+
+haven::write_dta(df_subset, "ffcws_subset_ece.sav")
 ```
 
