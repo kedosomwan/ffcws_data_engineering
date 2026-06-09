@@ -508,7 +508,28 @@ df <- df %>%
 # ------------------
 # Aggravation in Parenting
 # ------------------
-                                  
+
+# did not implement full scale.
+  mom_aggravation_y01 = rowMeans(select(., m2b20a:m2b20d, m2b44a:m2b44d, m2b20ax, m2b20bx, mx2b20cx),
+                            na.rm = TRUE),
+  dad_aggravation_y01 = rowMeans(select(., f2b18a:f2b18d, f2b38a:f2b38d, f2b20ax, f2b20bx, f2b20cx),
+                            na.rm = TRUE),
+  mom_aggravation_y03 = rowMeans(select(., m3b6a- m3b6d, m3b34a-m3b34d),
+                                 na.rm = TRUE),
+  dad_aggravation_y03 = rowMeans(select(.,  f3b6a:f3b6d, f3b34a:f3b34d),
+                                 na.rm = TRUE),
+  mom_aggravation_y05 = rowMeans(select(., m4b6a:m4b6d, m4b31a:m4b31d),
+                                 na.rm = TRUE),
+  dad_aggravation_y05 = rowMeans(select(., f4b6a:f4b6d, f4b31a:f4b31d),
+                                na.rm = TRUE),
+  mom_aggravation_y09 = rowMeans(select(., m5k2a:m5k2d),
+                                 na.rm = TRUE),
+  dad_aggravation_y09 = rowMeans(select(.,  f5k2a:f5k2d),
+                                 na.rm = TRUE),
+  pcg_aggravation_y09 = rowMeans(select(., p5k1a:p5k1d),
+                                 na.rm = TRUE),
+  pcg_aggrvation_y15 = rowMeans(select(., p6d32:p6d35),
+                                na.rm = TRUE)
 )
   
     
