@@ -60,10 +60,11 @@ df_na = df_na %>% drop_unused_value_labels()
 # view_df(df_na, show.values = TRUE, show.prc = TRUE, show.na = TRUE, sort.by.name = TRUE)
 ```
 
+# Recode & Rename
 
 ## rename variables
 ```{r}
-df_na <- df_na %>%
+df <- df_na %>%
   dplyr::rename(
   # Affective Control - Depressive Symptoms
     blues              = k6d2c,
@@ -144,13 +145,13 @@ df_na <- df_na %>%
   )
 
 # change ungraded to NA in the grades answer
-df_na$grades22[df_na$grades22 == 9] <- NA
+df$grades22[df$grades22 == 9] <- NA
 ```
 
 ## recode binary variables and reverse college variables
 ```{r}
 # for most (except biological sex) 1 is yes and 2 is no, so ifelse works
-df_na <- df_na %>% dplyr::mutate(
+df <- df %>% dplyr::mutate(
   
   # school programming
   esl = ifelse(p6c18 == 1,1,0),
@@ -211,7 +212,7 @@ df_na <- df_na %>% dplyr::mutate(
 library(dplyr)
 library(haven)
 
-df_na <- df_na %>%
+df <- df %>%
   mutate(
     # ------------------
     # Race (character)
@@ -302,7 +303,7 @@ df_na <- df_na %>%
 # ------------------
 # AP indicators
 # ------------------
-df_na <- df_na %>%
+df <- df %>%
   mutate(
     ap_stem = case_when(
       is.na(math_none) ~ NA_real_,
@@ -326,14 +327,14 @@ df_na <- df_na %>%
 # ------------------
 # Advanced math dummy
 # ------------------
-df_na <- df_na %>%
+df <- df %>%
   mutate(adv_math = if_else(high_math >= 5, 1, 0))
 
 # ------------------
 # Effect coding (White = reference)
 # race_ethnicity: 1 = White, 2 = Black, 3 = Latino, 4 = Another Race, 5 = Multiracial
 # ------------------
-df_na <- df_na %>%
+df <- df %>%
   mutate(
     black_ec = case_when(
       race_ethnicity == 2 ~  1,
@@ -363,7 +364,7 @@ df_na <- df_na %>%
 
 ## Y15 Depressive Symptoms
 ```{r}
-df_na <- df_na %>%
+df <- df %>%
   mutate(
     # ---- CES-D Depression scale ----
     blues2 = case_when(
@@ -397,7 +398,7 @@ df_na <- df_na %>%
 ```
 ## Scales for Xin Li Project
 ```{r}
-df_na <- df_na %>% 
+df <- df %>% 
   mutate(
 # ------------------
 # ASBI
@@ -411,6 +412,7 @@ df_na <- df_na %>%
 # Parental Depression
 # ------------------
     # using the constructed variable makes more sense here since the questions are different depending on the city. 
+# coul also use na.rm = TRUE to account for this...we'll see
     mom_lib_dep_y01 = cm2md_case_lib,
     dad_lib_dep_y01 = cf2md_case_lib,
     mom_con_dep_y01 = cm2md_case_con,
@@ -448,7 +450,7 @@ df_na <- df_na %>%
     pcg_hood_eff_y15= rowMeans(select(., p6i2:p6i10), na.rm = TRUE),
     kid_hood_eff_y15= rowMeans(select(.,k6e2a:k6e2d, k6e3a:k6e3d, na.rm = TRUE)),
 # ------------------
-# Home Observation for Measuremnt of the Environment (HOME) 
+# Home Observation for Measurement of the Environment (HOME) 
 # ------------------
     # Home observational scale,note says item scores are reversed to that higher score represents a better situation excerpt for condition of surround block (4 point) all others are 2 points (0,1s). reverse codeing them individually would be a pain so if I have the max sum I can add it in front to just reverse it all at once.
     
@@ -475,7 +477,7 @@ df_na <- df_na %>%
 # ------------------
 # Early childhood  Envirnoment Rating Scale Revised (ECERS-R)
 # ------------------
-    # Early childhood  Envirnoment Rating Scale, used Sakai et al., 2003 to get the subscales and items. i don't see the parents and staff scales here. may be in in another section somewere
+    # Early childhood  Environment Rating Scale, used Sakai et al., 2003 to get the subscales and items. i don't see the parents and staff scales here. may be in in another section somewhere. also, the e3f variables don't appear to match the sales? something about time spent
     personal_care_ecersr = rowSums(select(., e3i9:e3i14), na.rm = TRUE),
     # parent_staff_ecersr = rowSums(select(., e3i38), na.rm = TRUE)
     space_ecersr = rowSums(select(., e3il:e3i8), na.rm = TRUE),
@@ -483,13 +485,36 @@ df_na <- df_na %>%
     activities_ecersr = rowSums(select(., e3il9:e3i28), na.rm = TRUE),
     structure_ecersr = rowSums(select(., e3i34:e3i37), na.rm = TRUE),
     interaction_ecersr = rowSums(select(., e3129:e3i33), na.rm = TRUE),
-    ecers_r = rowSums(select(., ends_with("ecersr")), na.rm = TRUE)
+    ecers_r = rowSums(select(., ends_with("ecersr")), na.rm = TRUE),
+
+# ------------------
+# Material Hardship
+# ------------------
+  # no established scoring
+  material_hardship_y01 = rowSums(select(., m2h19a:m2h191, f2h17a:f2h17l), 
+                                         na.rm = TRUE),
+# i & j only asked in some cities
+  material_hardship_y03 = rowSums(select(., m3i23a:m3i23j, f3i23a:f3i23j), 
+                                  na.rem = TRUE),
+  material_hardship_y05 = rowSums(select(., m4i23a:m4i23m, f4i23a:f4i23m), 
+                                  na.rm = TRUE),
+
+# adds non-parental caregiver questions
+  material_hardship_y09 = rowSums(select(., m5f23a:m5f23j, f5f23a:f5f23j, n5g1a:n5g1j), 
+                                  na.rm = TRUE),
+# has past year or past six years not in the past year. here we switch to PCG
+  material_hardship_y15 = rowSums(select(., p6j37:p6j47, p6j48:p6j58), 
+                                  na.rm = TRUE),
+# ------------------
+# Aggravation in Parenting
+# ------------------
+                                  
 )
   
     
     
     #  used Sakai et al., 2003 to get the subscales and items
-    ecersr <- df_na %>% select(., e3f1:e3f7, e3i1:e3i38, e3l1:e3l11) # running alfpha found e3f3:e3f7 reverse correlated and should be reversed.
+    ecersr <- df %>% select(., e3f1:e3f7, e3i1:e3i38, e3l1:e3l11) # running alfpha found e3f3:e3f7 reverse correlated and should be reversed.
     # view variables to create subscales
     view_df(ecersr, show.frq = TRUE)
 
@@ -497,10 +522,14 @@ df_na <- df_na %>%
     
 ```
 
+# Add labels
+```{r}
+
+```
 
 # Create Y15 Scales
 ```{r}
-df_na <- df_na %>%
+df <- df %>%
   mutate(    
       # Teacher Expectations
     teacher_care           = 5 - k6b4a,
@@ -547,19 +576,19 @@ df_na <- df_na %>%
 
 # Check reliability
 ## depressive symptoms
-dep_scale <- df_na %>% dplyr::select(blues2, sad2, happy2, life2, dep2)
+dep_scale <- df %>% dplyr::select(blues2, sad2, happy2, life2, dep2)
 reliability(dep_scale)
 
 ## teacher perceptions
-teacher_scale <- df_na %>% dplyr::select(teacher_care, teacher_respect, teacher_expectation, teacher_interesting, teacher_comprehensible)
+teacher_scale <- df %>% dplyr::select(teacher_care, teacher_respect, teacher_expectation, teacher_interesting, teacher_comprehensible)
 reliability(teacher_scale)
 
 # school belonging
-belonging_scale <- df_na %>% dplyr::select(school_close, school_part, school_happy, school_safe)
+belonging_scale <- df %>% dplyr::select(school_close, school_part, school_happy, school_safe)
 reliability(belonging_scale)
 
 # kindergarten scales
-ece_teach <- df_na %>% dplyr::select(starts_with("t5f"))
+ece_teach <- df %>% dplyr::select(starts_with("t5f"))
 reliability(ece_teach)
 
 ```
