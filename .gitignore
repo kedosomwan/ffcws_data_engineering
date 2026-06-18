@@ -4,6 +4,7 @@
 .Ruserdata
 .positai
 *.dta
+*.sav
 .DS_Store
 *.pdf
 _*
